@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="My.mapper.OrdersMapperCustom">
+
+    <select id="findOrdersUser" resultType="My.po.OrdersCustom">
+        select orders.*,
+               `user`.username,
+               `user`.sex,
+               `user`.address
+
+        from orders,user
+        where orders.user_id=`user`.id
+    </select>
+
+<!--id是  <select id="findOrdersUserOrderDetail" resultMap="OrdersUserOrderDetail"> 中的resultMap值-->
+    <!--type是返回的最终类型 不要弄反了！！-->
+    <resultMap id="OrdersUserOrderDetail" type="My.po.Orders">
+        <id column="id" property="id"></id>
+        <result column="number" property="number"></result>
+        <result column="createtime" property="createtime"></result>
+        <result column="note" property="note"></result>
+
+        <association property="user" javaType="My.po.User">
+            <id column="user_id" property="id"></id>
+            <result column="username" property="username"></result>
+            <result column="sex" property="sex"></result>
+            <result column="address" property="address"></result>
+        </association>
+
+        <collection property="orderdetails" ofType="My.po.Orderdetail">
+            <id column="orderdetail_id" property="id"></id>
+            <result column="items_num" property="itemsNum"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="findOrdersUserOrderDetail" resultMap="OrdersUserOrderDetail">
+        select orders.*,
+               `user`.username,
+               `user`.sex,
+               `user`.address,
+               orderdetail.id orderdetail_id,
+               orderdetail.items_num
+
+        from orders,user,orderdetail
+        where orders.user_id=`user`.id and orderdetail.orders_id=orders.id
+    </select>
+
+
+
+    <resultMap id="UserOrdersOrderDetailItems" type="My.po.User">
+        <id column="user_id" property="id"></id>
+        <result column="username" property="username"></result>
+        <result column="sex" property="sex"></result>
+        <result column="address" property="address"></result>
+
+        <collection property="ordersList" ofType="My.po.Orders">
+            <id column="id" property="id"></id>
+            <result column="number" property="number"></result>
+            <result column="createtime" property="createtime"></result>
+            <result column="note" property="note"></result>
+
+            <!--嵌套-->
+            <collection property="orderdetails" ofType="My.po.Orderdetail">
+                <id column="orderdetail_id" property="id"></id>
+                <result column="items_num" property="itemsNum"></result>
+
+
+                <!--继续嵌套-->
+               <association property="items" javaType="My.po.Items">
+                   <id column="items_id" property="id"></id>
+                   <result column="items_name" property="name"></result>
+                   <result column="items_detail" property="detail"></result>
+               </association>
+
+            </collection>
+
+        </collection>
+
+
+    </resultMap>
+
+
+    <select id="findUserOrdersOrderDetailItems" resultMap="UserOrdersOrderDetailItems">
+        select orders.*,
+               `user`.username,
+               `user`.sex,
+               `user`.address,
+               orderdetail.id orderdetail_id,
+               orderdetail.items_num,
+               items.id items_id,
+               items.name items_name,
+               items.detail items_detail
+
+        from
+            orders,user,orderdetail,items
+
+        where
+            orders.user_id=`user`.id and orderdetail.orders_id=orders.id
+          and orderdetail.items_id=items.id
+    </select>
+
+
+
+    <!--延迟加载的resultMap  先执行findOrderUserLazyLoading 需要时再执行OrderUserLazyLoading-->
+    <resultMap id="OrderUserLazyLoading" type="My.po.Orders">
+        <!--首先还是要对订单进行配置-->
+        <id column="id" property="id"></id>
+        <result column="user_id" property="userId"></result>
+        <result column="number" property="number"></result>
+        <result column="createtime" property="createtime"></result>
+        <result column="note" property="note"></result>
+        <!--然后实现所需的用户信息的延迟加载-->
+        <!--selcet：指定延迟加载所要执行的statement （这里findUserById的功能刚好符合我们的功能 所以引用 当然也可以我们自己重写）-->
+        <!--column：订单信息中关联用户信息查询的列-->
+        <association property="user" javaType="My.po.User"
+                     select="My.mapper.UserMapper.findUserById"
+                     column="user_id">
+        </association>
+    </resultMap>
+
+    <select id="findOrderUserLazyLoading" resultMap="OrderUserLazyLoading">
+            SELECT * from orders
+    </select>
+
+</mapper>

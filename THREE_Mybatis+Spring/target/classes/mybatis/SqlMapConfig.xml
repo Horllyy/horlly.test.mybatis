@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!--引入配置文件-->
+    <mappers>
+        <mapper resource="sqlmap/User.xml"></mapper>
+
+        <!--我知道，UserMapper.java和UserMapper.xml文件最好是要放到同一目录结构下 然而移动之后这个路径总是不对啊：My/ssm/mapper/UserMapper.xml 显示找不到UserMapper.xml文件
+          于是我退而求其次 cut回resources目录下 就找得到 结果运行正常 或许有什么傻逼误区存在吧 但我觉得问题不大-->
+        <!--奇怪了我这个批量加载开不起来 报错-->
+        <!--org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): My.ssm.mapper.UserMapper.findUserById-->
+        <!--<package name="My.ssm.mapper"></package>-->
+
+        <mapper resource="sqlmap/UserMapper.xml"></mapper>
+
+        <mapper resource="sqlmap/ItemsMapper.xml"></mapper>
+    </mappers>
+
+</configuration>

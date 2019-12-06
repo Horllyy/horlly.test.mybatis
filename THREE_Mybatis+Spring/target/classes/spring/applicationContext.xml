@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--加载配置文件-->
+    <context:property-placeholder location="classpath:db.properties"></context:property-placeholder>
+
+    <bean id="userDao" class="My.ssm.dao.UserDaoImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+
+    <!--配置数据源 使用jdbc-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--加载mybatis的配置文件-->
+        <property name="configLocation" value="mybatis/SqlMapConfig.xml"></property>
+        <!--数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--&lt;!&ndash;数据源 使用dbcp（一直用c3p0 也用用dbcp）&ndash;&gt;-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <property name="maxActive" value="10"></property>
+        <property name="maxIdle" value="5"></property>
+    </bean>
+
+    <!--<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">-->
+        <!--<property name="driverClass" value="${jdbc.driver}"></property>-->
+        <!--<property name="jdbcUrl" value="${jdbc.url}"></property>-->
+        <!--<property name="user" value="${jdbc.username}"></property>-->
+        <!--<property name="password" value="${jdbc.password}"></property>-->
+    <!--</bean>-->
+
+
+    <!--mapper配置 根据mapper接口生成代理对象-->
+    <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+          <!--指定mapper接口-->
+        <property name="mapperInterface" value="My.ssm.mapper.UserMapper"></property>
+        <!--org.mybatis.spring.mapper.MapperFactoryBean此包中依旧继承SqlSessionDaoSupport父类来获取sqlSessionFactory-->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+    <!--从以上两项配置不难看出 其实userMapper.java和原始dao方法整合中的User.java一模一样 所在位置需要不一样 以及命名习惯不一样罢了
+        原始dao开发：dao层的xxx接口和xxx实现类
+        mapper代理：mapper文件夹下的xxxmapper.xml和xxxmapper接口
+        反正两个bean配置中sqlSessionFactory都要配置
+     -->
+
+
+    <!--当有多个mapper的时候 逐个配置显然不符合机器精神 来 让我们开启批量扫描的春天
+      从mapper包中 扫描出mapper接口 自动创建代理对象并注册至bean
+      而     SqlMapConfig.xml中的 <mapper resource="sqlmap/UserMapper.xml"></mapper> 这些mapper引入也同样不可省略 他妈的 本来只需要在这个文件中配置一次就好了 现在两个文件 多次配置 厉害死我
+    -->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+        <!--<property name="basePackage" value="My.ssm.mapper"></property>-->
+        <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>-->
+    <!--</bean>-->
+    <!--sorry 批量扫描同样开不起 我日了-->
+
+
+    <bean id="itemsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <!--指定mapper接口-->
+        <property name="mapperInterface" value="My.ssm.mapper.ItemsMapper"></property>
+        <!--org.mybatis.spring.mapper.MapperFactoryBean此包中依旧继承SqlSessionDaoSupport父类来获取sqlSessionFactory-->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+</beans>

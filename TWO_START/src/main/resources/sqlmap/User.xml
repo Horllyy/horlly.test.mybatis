@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+        <!--parameterType指定输入参数的类型
+            尽量别用${value} 有sql注入安全隐患
+        -->
+<mapper namespace="test">
+    <select id="findUserById" parameterType="int" resultType="My.po.User">
+        SELECT * FROM `user` WHERE id=#{id}
+    </select>
+    
+    <select id="findUserByName" parameterType="java.lang.String" resultType="My.po.User">
+        SELECT * FROM `user` WHERE username LIKE '%${value}%'
+    </select>
+
+    <insert id="insertUser" parameterType="My.po.User">
+             <!--自增配置-->
+         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+             SELECT LAST_INSERT_ID()
+         </selectKey>
+        INSERT INTO `user`(username,birthday,sex,address) VALUES(#{username},#{birthday},#{sex},#{address})
+
+          <!--非自增配置
+            值得一提的是，这是生成一个序列号 是string类型的 所以你要把相应数据库id类型和相应user类中id类型都改成string才好 这里我不做演示 因为我觉得这个方法并不是很直观很好 都不如random（）来的好用
+            -->
+        <!--<selectKey  keyProperty="id" order="BEFORE" resultType="java.lang.String">-->
+               <!--SELECT UUID()-->
+        <!--</selectKey>-->
+        <!--INSERT INTO `user`(id,username,birthday,sex,address) VALUES(#{id},#{username},#{birthday},#{sex},#{address})-->
+    </insert>
+
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM `user` WHERE id=#{id}
+    </delete>
+
+    <update id="updateUser" parameterType="My.po.User">
+        UPDATE `user` SET username=#{username},sex=#{sex},birthday=#{birthday},address=#{address} WHERE id=#{id}
+    </update>
+</mapper>

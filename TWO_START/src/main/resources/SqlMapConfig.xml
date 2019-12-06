@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+
+    <!--加载属性文件-->
+    <properties resource="db.properties">
+        <!--在这标签里面还可以配置一些属性值 但建议是不要在这里配置 直接咋propertyies文件内配置
+        而且这里的属性值会最先被读取 再是文件内属性 最后是parameterType
+        要注意的是 这三个步骤下来同名属性会被覆盖 也就是说 后面有同名属性存在 前面的同名属性值会被修改 这个错误很难发现
+        所以properties属性命名最好有一定特殊性 比如不要直接写driver 换成jdbc.driver等等-->
+    </properties>
+
+    <settings>
+        <!--先打开延迟加载的开关-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--将积极加载改为消极加载（即需要时加载）-->
+        <setting name="aggressiveLazyLoading" value="false"></setting>
+
+        <!--开启二级缓存-->
+        <setting name="cacheEnabled" value="true"></setting>
+    </settings>
+
+    <!--配置环境  <dataSource type="POOLED"></dataSource> 表示使用连接池-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"></property>
+                <!--<property name="url" value="jdbc:mysql://localhost:3306/ssm"></property>-->
+                <property name="url" value="${jdbc.url}"></property>
+                <property name="username" value="${jdbc.username}"></property>
+                <property name="password" value="${jdbc.password}"></property>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--引入配置文件-->
+    <mappers>
+        <mapper resource="sqlmap/User.xml"></mapper>
+        <mapper resource="mapper/Usermapper.xml"></mapper>
+        <mapper resource="mapper/OrdersMapperCustom.xml"></mapper>
+
+        <!--<package name="My.mapper"></package>-->
+    </mappers>
+
+</configuration>

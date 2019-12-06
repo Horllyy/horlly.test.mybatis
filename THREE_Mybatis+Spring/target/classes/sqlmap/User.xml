@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+        <!--parameterType指定输入参数的类型
+            尽量别用${value} 有sql注入安全隐患
+        -->
+<mapper namespace="test">
+    <select id="findUserById" parameterType="int" resultType="My.ssm.po.User">
+        SELECT * FROM `user` WHERE id=#{id}
+    </select>
+
+</mapper>
